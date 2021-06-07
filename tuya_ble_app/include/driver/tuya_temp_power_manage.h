@@ -2,8 +2,8 @@
  * @Author: zzw
  * @email: huanling.zhang@tuya.com
  * @LastEditors: zzw
- * @file name: temp_check.h
- * @Description: ¶ȼ
+ * @file name: tuya_temp_power_manage.h
+ * @Description:
  * @Copyright: HANGZHOU TUYA INFORMATION TECHNOLOGY CO.,LTD
  * @Company: http://www.tuya.com
  * @Date: 2021-04-22
@@ -11,12 +11,11 @@
  *
  */
 
-#ifndef TEMP_CHECK_H_
-#define TEMP_CHECK_H_
+#ifndef __TUYA_TEMP_POWER_MANAGE_H_
+#define __TUYA_TEMP_POWER_MANAGE_H_
 
 #include "tuya_ble_log.h"
 #include "adc.h"
-
 
 
 

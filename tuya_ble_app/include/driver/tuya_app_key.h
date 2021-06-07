@@ -1,5 +1,17 @@
-#ifndef APP_KEY_H_
-#define APP_KEY_H_
+/*
+ * @Author: leone
+ * @email: liang.zhang@tuya.com
+ * @LastEditors: leone
+ * @file name: tuya_app_key.h
+ * @Description: five-way IO key header file
+ * @Copyright: HANGZHOU TUYA INFORMATION TECHNOLOGY CO.,LTD
+ * @Company: http://www.tuya.com
+ * @Date: 2021-06-04
+ * @LastEditTime: 2021-06-04
+ *
+ */
+#ifndef _TUYA_APP_KEY_H_
+#define _TUYA_APP_KEY_H_
 
 #include "tl_common.h"
 #include "blt_soft_timer.h"
@@ -30,25 +42,8 @@ extern "C" {
 #define KEY_HEAT_LOW_OFF                   0x01
 #endif
 
-#define key_no           0		// 无作用
-#define key_click  	   	 1		// 单击 档位减
-#define key_double       2		// 档位加 双击
-#define key_long_2s      3
-#define key_long_3s      4
 
-void user_button_init(void);
+void app_key_init(void);
 void app_key_poll(void);
-
-
-
-//
-//extern unsigned char key_read(void);
-//void key_init(void);
-//static unsigned char key_driver(void);
-//unsigned char key_read(void);
-
-//void user_button_init(void);
-//void button_scan(void *arg);
-
 
 #endif

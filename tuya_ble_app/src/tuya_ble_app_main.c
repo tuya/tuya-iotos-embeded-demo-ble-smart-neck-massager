@@ -7,17 +7,16 @@
 #include "tuya_ble_sdk_version.h"
 #include "tuya_ble_utils.h"
 #include "tuya_ble_event.h"
-#include "tuya_ble_app_demo.h"
+#include "tuya_ble_app_main.h"
 #include "tuya_ble_log.h"
 #include "tuya_ota.h"
 
-#include "voice_prompt.h"
-#include "massage_system.h"
-#include "power_memory.h"
-#include "temp_check.h"
-#include "work_pattern.h"
-#include "app_key.h"
-#include "app_adc.h"
+#include "tuya_voice_prompt.h"
+#include "tuya_dev_data_save.h"
+#include "tuya_temp_power_manage.h"
+#include "tuya_massage_func_logic.h"
+#include "tuya_app_key.h"
+#include "tuya_app_adc.h"
 #include "tuya_ble_port.h"
 
 static tuya_ble_device_param_t device_param = {0};
@@ -39,6 +38,7 @@ extern uint8_t app_flag;
 typedef struct {
     uint8_t data[50];
 } custom_data_type_t;
+
 
 void custom_data_process(int32_t evt_id,void *data)
 {
@@ -94,11 +94,9 @@ static void tuya_cb_handler(tuya_ble_cb_evt_param_t* event)
     switch (event->evt)
     {
     case TUYA_BLE_CB_EVT_CONNECTE_STATUS:
-    	//tuya_uart_send_ble_state();
+
         TUYA_APP_LOG_INFO("received tuya ble conncet status update event,current connect status = %d",event->connect_status);
-//        if (event->connect_status == 3) {
-//        	massage_state.on_off = OFF;
-//        }
+
         break;
     case TUYA_BLE_CB_EVT_DP_WRITE:
         dp_data_len = event->dp_write_data.data_len;
@@ -109,14 +107,10 @@ static void tuya_cb_handler(tuya_ble_cb_evt_param_t* event)
         sn = 0;
         tuya_ble_dp_data_report(dp_data_array,dp_data_len);//1
 
-        //custom_evt_1_send_test(dp_data_len);
-        //tuya_ble_dp_data_report(dp_data_test,sizeof(dp_data_test));
-        ///tuya_uart_send_ble_dpdata(dp_data_array,dp_data_len);
         break;
     case TUYA_BLE_CB_EVT_DP_DATA_REPORT_RESPONSE:
         TUYA_APP_LOG_INFO("received dp data report response result code =%d",event->dp_response_data.status);
-        //tuya_ble_dp_data_with_flag_report(sn,REPORT_FOR_CLOUD_PANEL,dp_data_array,dp_data_len); //2       
-        //sn++;
+
         break;
     case TUYA_BLE_CB_EVT_DP_DATA_WTTH_TIME_REPORT_RESPONSE:
         TUYA_APP_LOG_INFO("received dp data report response result code =%d",event->dp_response_data.status);
@@ -187,7 +181,7 @@ static void tuya_cb_handler(tuya_ble_cb_evt_param_t* event)
     case TUYA_BLE_CB_EVT_DP_QUERY:
         TUYA_APP_LOG_INFO("received TUYA_BLE_CB_EVT_DP_QUERY event");
         uart_to_ble_enable=1;
-        //tuya_ble_dp_data_report(dp_data_array,dp_data_len);
+
         break;
     case TUYA_BLE_CB_EVT_OTA_DATA:
         tuya_ota_proc(event->ota_data.type,event->ota_data.p_data,event->ota_data.data_len);
@@ -216,6 +210,7 @@ static void tuya_cb_handler(tuya_ble_cb_evt_param_t* event)
 }
 
 void test_fun();
+
 void tuya_ble_app_init(void)
 {
     device_param.device_id_len = 16;    //If use the license stored by the SDK,initialized to 0, Otherwise 16 or 20.
@@ -245,15 +240,14 @@ void tuya_ble_app_init(void)
     tuya_flash_init();
     tuya_ota_init();
 
-    ty_factory_flag = 1;//���������¼��Ȩ ��Ȩ��
-//    tuya_timer_start(TIMER_FIRST,1000);
+    ty_factory_flag = 1;
 
     tuya_print_sysInfor();
     TUYA_APP_LOG_INFO("app version : "TY_APP_VER_STR);
 
-    user_button_init();
+    app_key_init();
     boost_init();
-    //blt_soft_timer_add(&my_key_event, 10 * TIME_MS);
+
 }
 
 void app_exe()
@@ -263,3 +257,4 @@ void app_exe()
 	switching_pattern(massage_state.pattern);	//function mode switching
 	voltage_detection();
 }
+

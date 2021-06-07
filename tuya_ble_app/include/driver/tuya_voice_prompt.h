@@ -11,8 +11,8 @@
  *
  */
 
-#ifndef VOICE_PROMPT_H_
-#define VOICE_PROMPT_H_
+#ifndef __TUYA_VOICE_PROMPT_H_
+#define __TUYA_VOICE_PROMPT_H_
 
 #include "tuya_ble_common.h"
 #include "tuya_ble_log.h"

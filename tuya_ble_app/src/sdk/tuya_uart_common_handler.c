@@ -6,10 +6,10 @@
 #define UART_HEAD_NUM    6
 #define UART_FRAME_MAX  (220+4+7)
 
-
-//MYFIFO_INIT(uart_rx_fifo, UART_FRAME_MAX+2, 4);
-//MYFIFO_INIT(uart_tx_fifo, 255, 5);
-
+#if 0
+MYFIFO_INIT(uart_rx_fifo, UART_FRAME_MAX+2, 4);
+MYFIFO_INIT(uart_tx_fifo, 255, 5);
+#endif
 
 
 void tuya_uart_common_send_bytes(u8* buf,u16 len)
@@ -205,12 +205,10 @@ u8 uart_data_unpack(u8 data)
         break;
     case 4:
     	uart_rx_len++;
-    	//data_len=data<<8;
         uart_rx_buffer[status]=data;
         status=5;
         break;
     case 5:
-    	//data_len=data_len+data;
         uart_rx_buffer[status]=data;
         uart_rx_len=6;
         datalen=(uart_rx_buffer[4]<<8)+uart_rx_buffer[5];
@@ -218,10 +216,9 @@ u8 uart_data_unpack(u8 data)
             status=7;
         else if(datalen<=(UART_FRAME_MAX-7))
         {
-        	//tuya_log_d("uart rx data len-%d",datalen);
             status=6;
         }
-        else//长度超限制
+        else
         {
         	tuya_log_d("uart rx dp_len too large-%d-%d",datalen);
         	status=0;
@@ -246,7 +243,6 @@ u8 uart_data_unpack(u8 data)
         if(uart_rx_len<=(UART_FRAME_MAX-1))
         {
         	ck_sum = check_sum(uart_rx_buffer,uart_rx_len);
-        	//tuya_log_d("uart rx crc-%d-%d-%d",ck_sum,data,uart_rx_len);
             uart_rx_buffer[uart_rx_len++]=data;
             if(ck_sum == data)
             {
@@ -257,19 +253,18 @@ u8 uart_data_unpack(u8 data)
             	err_code=2;
             }
         }
-        //tuya_log_d("uart rx unpack-%d-%x-%x-%x-%x-%d",err_code,uart_rx_buffer[0],uart_rx_buffer[1],data,ck_sum,uart_rx_len);
         status=0;
         break;
     default:
         status=0;
         break;
     }
-    //tuya_log_d("uart_rx frame-%d-0x%x",status,data);
+
     return err_code;
 }
 void tuya_uart_send_ble_dpdata(u8* ble_dp_data,u16 dp_len)
 {
-	u8 uart_data[220+4];//���е���dp�220
+	u8 uart_data[220+4];
 	u16 out_len=0;
 	if(ble_dpData_to_uart_dpData(ble_dp_data,dp_len,uart_data,sizeof(uart_data),&out_len)==0)
 	{
@@ -283,7 +278,7 @@ void tuya_uart_send_ble_dpdata(u8* ble_dp_data,u16 dp_len)
 void tuya_uart_send_ble_state()
 {
 	ty_ble_state=tuya_ble_connect_status_get();
-	//if(ty_ble_state>=UNBONDING_CONN) ty_ble_state=UNBONDING_UNCONN;
+
 	if((ty_ble_state==UNBONDING_UNCONN)||(ty_ble_state==UNBONDING_CONN)||(ty_ble_state==UNBONDING_UNAUTH_CONN)||(ty_ble_state==UNKNOW_STATUS))
 	{
 		ty_ble_state=0;
@@ -310,7 +305,7 @@ void tuya_uart_common_handler(u8 *pData,u16 len)
 	u16 data_len=(pData[4]<<8)|(pData[5]<<0);
     u8* data_buffer=&pData[6];
 
-    if(pData[2]!=0x00) return;//Э��汾�Ų���
+    if(pData[2]!=0x00) return;
 
     tuya_log_d("[uart_common]:cmd=0x%x,len=%d",pData[3],data_len);
 	switch(cmd)
@@ -321,7 +316,7 @@ void tuya_uart_common_handler(u8 *pData,u16 len)
 			u16 in_len=0;
 			if(uart_to_ble_enable==0) return_code=3;
 			if(!return_code)
-			{//
+			{
 				in_len=(pData[4]<<8)+pData[5];
 
 				if((uart_dpData_to_ble_dpData(&pData[6],in_len,ble_buffer,sizeof(ble_buffer),&out_len))!=0)
@@ -345,25 +340,24 @@ void tuya_uart_debug_handler(u8 *pData,u16 len)
 void tuya_uart_rx_handler(u8 *uart_Data,u16 len)
 {
 	u32 index=0;
-	//tuya_log_d("tuya_uart_rx_handler-%d",len);
 
-	if(tuya_get_ota_status() != TUYA_OTA_STATUS_NONE) return;//升级状态不处理串口数据
+	if(tuya_get_ota_status() != TUYA_OTA_STATUS_NONE) return;
 
 	while(index<len)
 	{
 		if(uart_data_unpack(uart_Data[index++])==0)
 		{
 			if(uart_rx_buffer[0]==0x55)
-			{//正常指令集
+			{
 				tuya_uart_common_handler(uart_rx_buffer,uart_rx_len);
 			}
 			else if((ty_factory_flag==1)&&(uart_rx_buffer[0]==0x66))
-			{//生产指令集
-				//tuya_log_v("ty_factory_flag:%d",ty_factory_flag);
+			{
+
 				tuya_uart_factory_test(uart_rx_buffer,uart_rx_len);
 			}
 			else if(uart_rx_buffer[0]==0x77)
-			{//调试指令集
+			{
 				tuya_uart_debug_handler(uart_rx_buffer,uart_rx_len);
 			}
 		}

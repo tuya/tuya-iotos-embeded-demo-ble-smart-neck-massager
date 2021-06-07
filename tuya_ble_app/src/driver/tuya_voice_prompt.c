@@ -2,7 +2,7 @@
  * @Author: zzw
  * @email: huanling.zhang@tuya.com
  * @LastEditors: zzw
- * @file name: voice_prompt.c
+ * @file name: tuya_voice_prompt.c
  * @Description: 语音播报功能实现(WTN6系列语音芯片， 一线串口通讯)
  * @Copyright: HANGZHOU TUYA INFORMATION TECHNOLOGY CO.,LTD
  * @Company: http://www.tuya.com
@@ -11,8 +11,8 @@
  *
  */
 
-#include "voice_prompt.h"
-#include "massage_system.h"
+#include "tuya_voice_prompt.h"
+#include "tuya_massage_func_logic.h"
 
 void voice_prompt_init(void)
 {
@@ -20,7 +20,6 @@ void voice_prompt_init(void)
     gpio_set_input_en(WTN6_BUSY_PIN, 1);
     gpio_set_output_en(WTN6_DATA_PIN, 1);
 
-    //gpio_write(WTN6_BUSY_PIN, 0);
     gpio_write(WTN6_BUSY_PIN, 1);
     gpio_write(WTN6_DATA_PIN, 1);
 }

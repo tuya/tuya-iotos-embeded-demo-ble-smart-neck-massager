@@ -1,13 +1,25 @@
-#include "app_key.h"
+/*
+ * @Author: leone
+ * @email: liang.zhang@tuya.com
+ * @LastEditors: leone
+ * @file name: tuya_app_key.c
+ * @Description: five-way IO key source file
+ * @Copyright: HANGZHOU TUYA INFORMATION TECHNOLOGY CO.,LTD
+ * @Company: http://www.tuya.com
+ * @Date: 2021-06-04
+ * @LastEditTime: 2021-06-04
+ *
+ */
+
+#include "tuya_app_key.h"
 #include "gpio_8258.h"
-#include "work_pattern.h"
-#include "massage_system.h"
+#include "tuya_massage_func_logic.h"
 #include "tuya_ble_log.h"
 #include "drivers.h"
-#include "voice_prompt.h"
-#include "temp_check.h"
+#include "tuya_voice_prompt.h"
+#include "tuya_temp_power_manage.h"
 #include "tuya_ble_api.h"
-#include "power_memory.h"
+#include "tuya_dev_data_save.h"
 
 unsigned char key_buf = 0;
 unsigned char key_old = 0;
@@ -18,14 +30,24 @@ unsigned char key_cont = 0x00;
 
 unsigned long sys_time = 0;
 extern uint8_t app_flag;
-//{DP_ID, DP_type, DP_len, DP_data}
+
+//DP up buffer
 unsigned char gear_buf[]   = {0x67, 0x04, 0x01, 0x00};	// gear
 unsigned char mode_buf[]   = {0x68, 0x04, 0x01, 0x00};	// mode
 unsigned char heat_buf[]   = {0x66, 0x04, 0x01, 0x01};	// heat
 unsigned char switch_buf[] = {0x69, 0x01, 0x01, 0x00};	// switch
 
-//所有按键初始化，按键低电平有效
-void user_button_init(void)
+extern MASSAGE_STATE_T  massage_state;
+
+/**
+ * @Function: app_key_init
+ * @Description: Initialize keys IO port
+ * @Input: none
+ * @Output: none
+ * @Return: none
+ * @Others:
+ */
+void app_key_init(void)
 {
 	gpio_set_func(LED_1, AS_GPIO);
 	gpio_set_output_en(LED_1, 1);
@@ -47,6 +69,17 @@ void user_button_init(void)
     return;
 }
 
+/**
+ * @Function: app_key_scan
+ * @Description: Initialize keys IO port
+ * @Input: trg: trigger value,when the key is pressed,the trg will be assigned to the corresponding key value
+ *              and the value will only appear once in the entire key trigger cycle.
+ *         cont:Count value,when the key is pressed,the cont will be assigned to the corresponding key value
+ *              and the value will always appear when the entire key is not released.
+ * @Output: none
+ * @Return: none
+ * @Others:
+ */
 void app_key_scan(unsigned char *trg,unsigned char *cont)
 {
 	int i;
@@ -74,7 +107,15 @@ void app_key_scan(unsigned char *trg,unsigned char *cont)
     *cont = read_data;
 }
 
-static void my_key_event(unsigned char key_event)
+/**
+ * @Function: key_event_handle
+ * @Description: handle key events and perform corresponding function operations
+ * @Input: key_event: trigger key value
+ * @Output: none
+ * @Return: none
+ * @Others:
+ */
+static void key_event_handle(unsigned char key_event)
 {
 	uint8_t sb_data = 0;
     switch(key_event)
@@ -168,6 +209,15 @@ static void my_key_event(unsigned char key_event)
     }
 }
 
+/**
+ * @Function: app_key_poll
+ * @Description: continuously query the keys status at 20ms intervals,
+ *               and call the key_event_handle when the key is released.
+ * @Input: none
+ * @Output: none
+ * @Return: none
+ * @Others:
+ */
 void app_key_poll(void)
 {
 	if(!clock_time_exceed(sys_time, 20 * TIME_MS)){
@@ -183,7 +233,7 @@ void app_key_poll(void)
 
         if(key_buf != 0) {
 
-        	my_key_event(key_buf);
+        	key_event_handle(key_buf);
         }
 
         key_buf = 0;

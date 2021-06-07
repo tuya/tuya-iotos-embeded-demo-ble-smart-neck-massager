@@ -2,8 +2,8 @@
  * @Author: zzw
  * @email: huanling.zhang@tuya.com
  * @LastEditors: zzw
- * @file name: power_memory.c
- * @Description: 断电记忆功能实现,关闭电源下次开机后，恢复到关闭电源时的工作状态
+ * @file name: tuya_dev_data_save.c
+ * @Description: save device data to flash
  * @Copyright: HANGZHOU TUYA INFORMATION TECHNOLOGY CO.,LTD
  * @Company: http://www.tuya.com
  * @Date: 2021-04-22
@@ -11,9 +11,8 @@
  *
  */
 
-#include "power_memory.h"
-#include "work_pattern.h"
-#include "massage_system.h"
+#include "tuya_dev_data_save.h"
+#include "tuya_massage_func_logic.h"
 
 #define FLASH_ADDR              0x040000
 #define FLASH_BUFF_LEN          256
@@ -61,7 +60,6 @@ volatile unsigned char Flash_Write_Buff[FLASH_BUFF_LEN] = { 0x00,0x11,0x22,0x33,
 ***********************************************************/
 void write_massage_status_to_flash(void)
 {
-	//Flash_Write_Buff[0] = massage_state.on_off;
 	Flash_Write_Buff[0] = massage_state.pattern;
 	Flash_Write_Buff[1] = massage_state.gear;
 	Flash_Write_Buff[2] = massage_state.heat;
@@ -84,7 +82,6 @@ void read_massage_status_to_flash(void)
 	flash_read_page(FLASH_ADDR, FLASH_BUFF_LEN, (unsigned char *)Flash_Read_Buff);
 
     //Store the data read from flash into a structure
-    //massage_state.on_off = Flash_Read_Buff[0];
     massage_state.pattern = Flash_Read_Buff[0];
     massage_state.gear = Flash_Read_Buff[1];
     massage_state.heat = Flash_Read_Buff[2];
@@ -101,12 +98,10 @@ void read_massage_status_to_flash(void)
 ***********************************************************/
 void erase_massage_flash(void)
 {
-   //massage_state.on_off = OFF;
    massage_state.pattern = relieve;
    massage_state.gear = first_gear;
    massage_state.heat = off_heat;
 
-   //Flash_Write_Buff[0] = OFF;
    Flash_Write_Buff[0] = relieve;
    Flash_Write_Buff[1] = first_gear;
    Flash_Write_Buff[2] = off_heat;

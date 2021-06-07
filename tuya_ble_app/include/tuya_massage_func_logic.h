@@ -2,8 +2,8 @@
  * @Author: zzw
  * @email: huanling.zhang@tuya.com
  * @LastEditors: zzw
- * @file name: massage_system.h
- * @Description: 工作模式功能实现
+ * @file name: tuya_massage_func_logic.h
+ * @Description: 工作模式功能实现，共五种工作模式，三种加热模式
  * @Copyright: HANGZHOU TUYA INFORMATION TECHNOLOGY CO.,LTD
  * @Company: http://www.tuya.com
  * @Date: 2021-04-22
@@ -11,11 +11,12 @@
  *
  */
 
-#ifndef MASSAGE_SYSTEM_H_
-#define MASSAGE_SYSTEM_H_
+#ifndef __TUYA_MASSAGE_FUNC_LOGIC_H_
+#define __TUYA_MASSAGE_FUNC_LOGIC_H_
 
-#include "work_pattern.h"
 #include <stdbool.h>
+#include "pwm.h"
+#include "gpio_8258.h"
 #include "tuya_ble_type.h"
 
 //功能引脚定义
@@ -36,12 +37,55 @@
 
 #define TIME_MS		   	1000
 
-#define	ALARM	1	//Alarm status
-#define NORMAL  0
-#define ON		1	//Switch status
-#define OFF     0
+
+#define R25		10000		//NTC resistance at 25C 10K
+#define FULL_POWER_ADC		2000
 
 typedef bool	BOOL;
+
+typedef enum {
+	relieve = 0,
+	vitality,
+	hammering,
+	scraping_therapy,
+	intelligent
+}WORK_PATTERN;
+
+//1 to 15 steps, max. step -> 15
+typedef enum {
+	first_gear = 0,
+	second_gear,
+	third_gear,
+	fourth_gear,
+	fifth_gear,
+	sixth_gear,
+	seventh_gear,
+	eighth_gear,
+	ninth_gear,
+	tenth_gear,
+	eleventh_gear,
+	twelfth_gear,
+	thirteenth_gear,
+	fourteenth_gear,
+	fifteenth_gear,
+	max_gear
+}WORK_GEARS;
+
+typedef enum {
+	strong_heat = 0,
+	off_heat = 1
+}HEAT_STATE;
+
+
+typedef enum {
+	ALARM = 0,
+	NORMAL = 1
+}BATTERY_STATE;
+
+typedef enum {
+	ON = 0,
+	OFF = 1
+}POWER_STATE;
 
 // Massager Status
 typedef struct {
@@ -57,8 +101,11 @@ typedef struct {
 extern MASSAGE_STATE_T  massage_state;
 
 void power_off_init(void);
-void report_all_dp_data(void);
 void boost_init(void);
+void pattern_pin_init(void);
+void switching_pattern(unsigned char pat);
+int switching_heat(unsigned char warm);
+void switching_gear(unsigned char gears);
 void app_dp_handle(uint8_t *dp_data);
 
 #endif

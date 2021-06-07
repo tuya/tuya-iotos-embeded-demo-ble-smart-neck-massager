@@ -2,8 +2,8 @@
  * @Author: zzw
  * @email: huanling.zhang@tuya.com
  * @LastEditors: zzw
- * @file name: temp_check.h
- * @Description: ¶ȼ,ADCͨѡ
+ * @file name: tuya_temp_power_manage.h
+ * @Description: Temperature and power detection
  * @Copyright: HANGZHOU TUYA INFORMATION TECHNOLOGY CO.,LTD
  * @Company: http://www.tuya.com
  * @Date: 2021-04-22
@@ -11,15 +11,13 @@
  *
  */
 
-#include "temp_check.h"
+#include "tuya_temp_power_manage.h"
+#include "tuya_massage_func_logic.h"
 #include "gpio_8258.h"
 #include "pwm.h"
-#include "massage_system.h"
 #include "tuya_ble_api.h"
-#include "voice_prompt.h"
+#include "tuya_voice_prompt.h"
 
-#define R25		10000		//NTC resistance at 25C 10K
-#define FULL_POWER_ADC		2000
 
 extern unsigned long sys_time;
 unsigned char alarm_buf[]  = {0x65, 0x01, 0x01, 0x00};	// Low battery alarm
@@ -115,13 +113,3 @@ int voltage_detection(void)
 	}
 	return battery_val;
 }
-
-////boostѹ
-//int boost_detection(void)
-//{
-//	uint16_t boost_val;
-//	adc_channel_checkout(channel_x3);
-//	boost_val = adc_sample_and_get_result();		// uint: mv
-//
-//	return boost_val;
-//}
